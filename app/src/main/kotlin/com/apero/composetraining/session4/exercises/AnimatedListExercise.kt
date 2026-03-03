@@ -67,204 +67,50 @@ data class TodoItem(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AnimatedListScreen(modifier: Modifier = Modifier) {
-    // State cho danh sách todo
-    var todos by remember {
-        mutableStateOf(
-            listOf(
-                TodoItem(1, "Design mockup"),
-                TodoItem(2, "Code review"),
-                TodoItem(3, "Write tests", isDone = true),
-                TodoItem(4, "Deploy to staging"),
-                TodoItem(5, "Update docs", isDone = true),
-            ),
-        )
-    }
-
-    // State cho input thêm todo mới
-    var newTodoText by remember { mutableStateOf("") }
-
-    // rememberLazyListState: track scroll position để show/hide FAB
-    // Đây là cách đúng để đọc scroll state — KHÔNG dùng onScroll callback
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    // derivedStateOf: chỉ recalculate khi firstVisibleItemIndex thay đổi
-    // KHÔNG dùng listState.firstVisibleItemIndex trực tiếp trong composable
-    // vì nó sẽ trigger recompose MỖI PIXEL scroll → performance issue
-    val showFab by remember {
-        derivedStateOf {
-            // FAB visible khi ở đầu list (firstVisibleItemIndex = 0)
-            // FAB ẩn khi scroll xuống
-            listState.firstVisibleItemIndex == 0
-        }
-    }
-
-    // Tách active và completed tasks
-    val activeTodos = todos.filter { !it.isDone }
-    val completedTodos = todos.filter { it.isDone }
-
-    // Counter cho ID mới
-    var nextId by remember { mutableStateOf(todos.size + 1) }
-
-    Scaffold(
-        floatingActionButton = {
-            // FAB với AnimatedVisibility — ẩn khi scroll xuống
-            AnimatedVisibility(
-                visible = showFab,
-                enter = fadeIn() + slideInVertically { it },
-                exit = fadeOut() + slideOutVertically { it },
-            ) {
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        if (newTodoText.isNotBlank()) {
-                            todos = todos + TodoItem(
-                                id = nextId++,
-                                title = newTodoText.trim(),
-                            )
-                            newTodoText = ""
-                        }
-                    },
-                    icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
-                    text = { Text("Add Task") },
-                )
-            }
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            // Tiêu đề
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                Text(
-                    text = "Animated Todo List",
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                    text = "animateItem() + stickyHeader + rememberLazyListState",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            // Input thêm todo
-            AddTodoInput(
-                value = newTodoText,
-                onValueChange = { newTodoText = it },
-                onAdd = {
-                    if (newTodoText.isNotBlank()) {
-                        // Thêm item — animateItem() sẽ tự animate slide in
-                        todos = todos + TodoItem(id = nextId++, title = newTodoText.trim())
-                        newTodoText = ""
-                        // Scroll lên đầu để thấy item mới
-                        coroutineScope.launch { listState.animateScrollToItem(0) }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // LazyColumn với sticky headers
-            LazyColumn(
-                state = listState, // Gắn listState để track scroll
-                contentPadding = PaddingValues(bottom = 80.dp), // Space cho FAB
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                // ─── Section: Active Tasks ──────────────────────────────────
-
-                // stickyHeader: Header này sẽ "dính" khi scroll qua nó
-                // Tại sao sticky? → Giúp user luôn biết mình đang ở section nào
-                stickyHeader(key = "active_header") {
-                    SectionHeader(title = "Active Tasks (${activeTodos.size})")
-                }
-
-                // animateItem() trong Compose 1.7+
-                // Tự động animate: slide in khi add, slide out khi remove, move khi reorder
-                // Không cần config gì thêm — Compose tự handle physics
-                items(
-                    items = activeTodos,
-                    key = { it.id }, // Key BẮT BUỘC phải có để animateItem hoạt động đúng
-                ) { todo ->
-                    TodoRow(
-                        todo = todo,
-                        onToggle = {
-                            todos = todos.map { if (it.id == todo.id) it.copy(isDone = !it.isDone) else it }
-                        },
-                        onDelete = {
-                            todos = todos.filter { it.id != todo.id }
-                        },
-                        onMoveUp = {
-                            val index = todos.indexOfFirst { it.id == todo.id }
-                            if (index > 0) {
-                                todos = todos.toMutableList().apply {
-                                    val item = removeAt(index)
-                                    add(index - 1, item)
-                                }
-                            }
-                        },
-                        onMoveDown = {
-                            val index = todos.indexOfFirst { it.id == todo.id }
-                            if (index < todos.size - 1) {
-                                todos = todos.toMutableList().apply {
-                                    val item = removeAt(index)
-                                    add(index + 1, item)
-                                }
-                            }
-                        },
-                        // animateItem() — magic line!
-                        // Compose tự calculate position change và animate từ vị trí cũ → mới
-                        modifier = Modifier.animateItem(),
-                    )
-                }
-
-                // ─── Section: Completed Tasks ───────────────────────────────
-
-                if (completedTodos.isNotEmpty()) {
-                    stickyHeader(key = "completed_header") {
-                        SectionHeader(title = "Completed Tasks (${completedTodos.size})")
-                    }
-
-                    items(
-                        items = completedTodos,
-                        key = { it.id },
-                    ) { todo ->
-                        TodoRow(
-                            todo = todo,
-                            onToggle = {
-                                todos = todos.map { if (it.id == todo.id) it.copy(isDone = !it.isDone) else it }
-                            },
-                            onDelete = {
-                                todos = todos.filter { it.id != todo.id }
-                            },
-                            onMoveUp = { /* Completed items không reorder */ },
-                            onMoveDown = {},
-                            modifier = Modifier.animateItem(), // animateItem cho completed items
-                        )
-                    }
-                }
-
-                // Empty state
-                if (todos.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(48.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "No tasks yet!\nAdd one above 👆",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // TODO: Implement AnimatedListScreen
+    // 1. State setup:
+    //    - var todos by remember { mutableStateOf(listOf(...initial items...)) }
+    //    - var newTodoText by remember { mutableStateOf("") }
+    //    - val listState = rememberLazyListState()
+    //    - val coroutineScope = rememberCoroutineScope()
+    //    - var nextId by remember { mutableStateOf(todos.size + 1) }
+    //
+    // 2. derivedStateOf cho FAB visibility:
+    //    val showFab by remember {
+    //        derivedStateOf { listState.firstVisibleItemIndex == 0 }
+    //    }
+    //    GỢI Ý: Tại sao dùng derivedStateOf thay vì đọc trực tiếp?
+    //    → Đọc trực tiếp → recompose MỖI PIXEL scroll → performance issue
+    //    → derivedStateOf chỉ recalculate khi firstVisibleItemIndex thay đổi
+    //
+    // 3. Tách active và completed:
+    //    val activeTodos = todos.filter { !it.isDone }
+    //    val completedTodos = todos.filter { it.isDone }
+    //
+    // 4. Scaffold với FAB:
+    //    floatingActionButton = {
+    //        AnimatedVisibility(
+    //            visible = showFab,
+    //            enter = fadeIn() + slideInVertically { it },
+    //            exit = fadeOut() + slideOutVertically { it }
+    //        ) { ExtendedFloatingActionButton(...) }
+    //    }
+    //
+    // 5. Column bên trong: Header + AddTodoInput + LazyColumn
+    //
+    // 6. LazyColumn với stickyHeader + items(key = { it.id }):
+    //    - stickyHeader(key = "active_header") { SectionHeader(...) }
+    //    - items(activeTodos, key = { it.id }) { todo →
+    //        TodoRow(modifier = Modifier.animateItem())  ← MAGIC LINE!
+    //      }
+    //    - Tương tự cho completed section
+    //
+    // GỢI Ý: animateItem() tự động animate:
+    // - slide in khi add
+    // - slide out khi remove
+    // - move khi reorder
+    // KEY BẮT BUỘC để animateItem hoạt động đúng!
+    Box {}
 }
 
 // ─── Section Header (Sticky) ──────────────────────────────────────────────────
@@ -274,18 +120,10 @@ private fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-    }
+    // TODO: Implement SectionHeader
+    // - Surface(fillMaxWidth, surfaceVariant color)
+    // - Text title (labelLarge, Bold, primary, padding horizontal=16 vertical=8)
+    Box {}
 }
 
 // ─── Todo Row ─────────────────────────────────────────────────────────────────
@@ -299,67 +137,21 @@ private fun TodoRow(
     onMoveDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // animateFloatAsState cho alpha khi item completed
-    val alpha by animateFloatAsState(
-        targetValue = if (todo.isDone) 0.5f else 1f,
-        label = "todo_alpha",
-    )
-
-    ListItem(
-        headlineContent = {
-            Text(
-                text = todo.title,
-                textDecoration = if (todo.isDone) TextDecoration.LineThrough else null,
-                modifier = Modifier.alpha(alpha),
-            )
-        },
-        leadingContent = {
-            // Checkbox để toggle done/undone
-            Checkbox(
-                checked = todo.isDone,
-                onCheckedChange = { onToggle() },
-            )
-        },
-        trailingContent = {
-            Row {
-                // Nút move up
-                if (!todo.isDone) {
-                    IconButton(onClick = onMoveUp, modifier = Modifier.size(36.dp)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Move up",
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                    // Nút move down
-                    IconButton(onClick = onMoveDown, modifier = Modifier.size(36.dp)) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Move down",
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                }
-                // Nút delete
-                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-            }
-        },
-        modifier = modifier.background(
-            if (todo.isDone) {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-        ),
-    )
-    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+    // TODO: Implement TodoRow
+    // 1. animateFloatAsState cho alpha khi completed:
+    //    val alpha by animateFloatAsState(
+    //        targetValue = if (todo.isDone) 0.5f else 1f,
+    //        label = "todo_alpha"
+    //    )
+    //
+    // 2. ListItem với:
+    //    - headlineContent: Text todo.title với textDecoration = LineThrough nếu isDone
+    //    - leadingContent: Checkbox(checked = isDone, onCheckedChange = { onToggle() })
+    //    - trailingContent: Row với IconButton(ArrowBack/Up), IconButton(ArrowForward/Down), IconButton(Delete, error tint)
+    //    - modifier với background (surfaceVariant.alpha(0.5f) nếu done, surface nếu không)
+    //
+    // 3. HorizontalDivider ở cuối
+    Box {}
 }
 
 // ─── Add Todo Input ───────────────────────────────────────────────────────────
@@ -371,31 +163,12 @@ private fun AddTodoInput(
     onAdd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = { Text("Add new task...") },
-            modifier = Modifier.weight(1f),
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium,
-        )
-        IconButton(
-            onClick = onAdd,
-            enabled = value.isNotBlank(),
-        ) {
-            Icon(
-                imageVector = if (value.isNotBlank()) Icons.Default.Check else Icons.Default.Add,
-                contentDescription = "Add task",
-                tint = if (value.isNotBlank()) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.outline,
-            )
-        }
-    }
+    // TODO: Implement AddTodoInput
+    // - Row(fillMaxWidth, CenterVertically, spacedBy=8.dp)
+    // - OutlinedTextField(weight(1f), singleLine, placeholder = "Add new task...")
+    // - IconButton(onClick = onAdd, enabled = value.isNotBlank())
+    //   Icon = Check nếu có text, Add nếu không; tint = primary nếu enabled, outline nếu không
+    Box {}
 }
 
 // ─── Previews ─────────────────────────────────────────────────────────────────

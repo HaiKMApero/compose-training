@@ -63,7 +63,7 @@ data class Photo(
     val id: Int,
     val title: String,
     val category: String,
-    val color: Color, // Thay thế cho ảnh thật
+    val color: Color,
 )
 
 // Categories
@@ -102,116 +102,36 @@ private val samplePhotos = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StaggeredGalleryScreen(modifier: Modifier = Modifier) {
-    // State cho selected category
-    var selectedCategory by remember { mutableStateOf("All") }
-
-    // State cho pull-to-refresh
-    var isRefreshing by remember { mutableStateOf(false) }
-
-    // Photos sau khi filter
-    val filteredPhotos by remember(selectedCategory) {
-        derivedStateOf {
-            if (selectedCategory == "All") samplePhotos
-            else samplePhotos.filter { it.category == selectedCategory }
-        }
-    }
-
-    // Simulate refresh
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            delay(1500L) // Giả lập network request
-            isRefreshing = false
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "📸 Gallery",
-                        fontWeight = FontWeight.Bold,
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = { isRefreshing = true }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-                    }
-                },
-            )
-        },
-        modifier = modifier,
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            // Category filter tabs
-            CategoryFilterRow(
-                categories = categories,
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it },
-                modifier = Modifier.padding(vertical = 8.dp),
-            )
-
-            // Grid info text
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "${filteredPhotos.size} photos",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.GridOn,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Adaptive(150dp)",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
-            // PullToRefreshBox: wrap content với pull-to-refresh behavior
-            // experimental trong Material3, dùng @OptIn(ExperimentalMaterial3Api::class)
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = { isRefreshing = true },
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                if (filteredPhotos.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "No photos in \"$selectedCategory\"",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    // LazyVerticalStaggeredGrid — điểm chính của bài tập
-                    StaggeredPhotoGrid(photos = filteredPhotos)
-                }
-            }
-        }
-    }
+    // TODO: Implement StaggeredGalleryScreen
+    // 1. State setup:
+    //    - var selectedCategory by remember { mutableStateOf("All") }
+    //    - var isRefreshing by remember { mutableStateOf(false) }
+    //
+    // 2. Filter photos với derivedStateOf:
+    //    val filteredPhotos by remember(selectedCategory) {
+    //        derivedStateOf {
+    //            if (selectedCategory == "All") samplePhotos
+    //            else samplePhotos.filter { it.category == selectedCategory }
+    //        }
+    //    }
+    //
+    // 3. Simulate refresh với LaunchedEffect:
+    //    LaunchedEffect(isRefreshing) {
+    //        if (isRefreshing) { delay(1500L); isRefreshing = false }
+    //    }
+    //
+    // 4. Scaffold với TopAppBar:
+    //    - title: "📸 Gallery"
+    //    - actions: IconButton(Search) + IconButton(Refresh, onClick = { isRefreshing = true })
+    //
+    // 5. Column bên trong:
+    //    - CategoryFilterRow(categories, selectedCategory, onCategorySelected)
+    //    - Row info: "${filteredPhotos.size} photos" + "Adaptive(150dp)" label
+    //    - PullToRefreshBox(isRefreshing, onRefresh = { isRefreshing = true }) {
+    //        if (filteredPhotos.isEmpty()) → Empty state
+    //        else → StaggeredPhotoGrid(filteredPhotos)
+    //      }
+    Box {}
 }
 
 // ─── Staggered Grid ───────────────────────────────────────────────────────────
@@ -221,34 +141,23 @@ private fun StaggeredPhotoGrid(
     photos: List<Photo>,
     modifier: Modifier = Modifier,
 ) {
-    // LazyVerticalStaggeredGrid: giống LazyVerticalGrid nhưng cho phép height khác nhau
+    // TODO: Implement StaggeredPhotoGrid
+    // - LazyVerticalStaggeredGrid với:
+    //   columns = StaggeredGridCells.Adaptive(150.dp)
+    //   → Số cột tự tính để mỗi cột >= 150dp (responsive)
+    //   → Hoặc: StaggeredGridCells.Fixed(2) để luôn 2 cột
+    //   contentPadding = PaddingValues(horizontal=8.dp, vertical=8.dp)
+    //   horizontalArrangement = spacedBy(8.dp)
+    //   verticalItemSpacing = 8.dp
     //
-    // StaggeredGridCells.Adaptive(150.dp): số cột tự tính để mỗi cột >= 150dp
-    //   → Ưu: Responsive (tablet sẽ có nhiều cột hơn phone)
-    //   → Nhược: Số cột thay đổi khi xoay màn hình
+    // - items(photos, key = { it.id }) { photo →
+    //     PhotoCard(photo, height = calculateDeterministicHeight(photo.title))
+    //   }
     //
-    // StaggeredGridCells.Fixed(2): luôn 2 cột
-    //   → Ưu: Predictable layout
-    //   → Nhược: Không responsive (tablet = 2 cột to → xấu)
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Adaptive(150.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalItemSpacing = 8.dp,
-        modifier = modifier.fillMaxSize(),
-    ) {
-        items(
-            items = photos,
-            key = { it.id }, // Key quan trọng cho animation và identity
-        ) { photo ->
-            PhotoCard(
-                photo = photo,
-                // Chiều cao deterministic dựa vào title.hashCode()
-                // → Mỗi lần render, cùng photo = cùng height (không random)
-                height = calculateDeterministicHeight(photo.title),
-            )
-        }
-    }
+    // GỢI Ý: Tại sao dùng Adaptive thay vì Fixed?
+    // → Adaptive: responsive (tablet nhiều cột hơn phone)
+    // → Fixed: predictable layout nhưng không responsive
+    Box {}
 }
 
 /**
@@ -274,66 +183,16 @@ private fun PhotoCard(
     height: Dp,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height)
-            .clip(MaterialTheme.shapes.medium),
-    ) {
-        // Nền màu thay thế ảnh thật
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(photo.color),
-        )
-
-        // Gradient overlay ở cuối card — phổ biến trong gallery apps
-        // Tạo cảm giác depth và làm text dễ đọc hơn trên nền tối/sáng
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .align(Alignment.BottomCenter)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.7f),
-                        ),
-                    ),
-                ),
-        )
-
-        // Title và category chip ở cuối card
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(8.dp),
-        ) {
-            Text(
-                text = photo.title,
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 2,
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Category chip
-            Surface(
-                shape = MaterialTheme.shapes.extraSmall,
-                color = Color.White.copy(alpha = 0.25f),
-            ) {
-                Text(
-                    text = photo.category,
-                    color = Color.White,
-                    fontSize = 10.sp,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                )
-            }
-        }
-    }
+    // TODO: Implement PhotoCard
+    // - Box với fillMaxWidth + height(height) + clip(shapes.medium)
+    // - Lớp 1: Box nền với background(photo.color)
+    // - Lớp 2: Box gradient overlay ở BottomCenter (height=80.dp)
+    //   background = Brush.verticalGradient(Transparent → Black.alpha0.7)
+    // - Lớp 3: Column (align = BottomStart, padding=8.dp):
+    //   → Text title (12.sp, Medium, White, maxLines=2)
+    //   → Spacer(4.dp)
+    //   → Surface chip với category text (10.sp, White, White.alpha0.25 background)
+    Box {}
 }
 
 // ─── Category Filter Row ──────────────────────────────────────────────────────
@@ -345,23 +204,12 @@ private fun CategoryFilterRow(
     onCategorySelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // LazyRow cho category chips — horizontal scroll nếu nhiều categories
-    LazyRow(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(
-            items = categories,
-            key = { it }, // Category name là unique key
-        ) { category ->
-            FilterChip(
-                selected = category == selectedCategory,
-                onClick = { onCategorySelected(category) },
-                label = { Text(category) },
-            )
-        }
-    }
+    // TODO: Implement CategoryFilterRow
+    // - LazyRow với contentPadding horizontal=16.dp, spacedBy=8.dp
+    // - items(categories, key = { it }) { category →
+    //     FilterChip(selected = category == selectedCategory, onClick = ...)
+    //   }
+    Box {}
 }
 
 // ─── Previews ─────────────────────────────────────────────────────────────────

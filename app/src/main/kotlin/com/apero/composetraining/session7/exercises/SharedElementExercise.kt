@@ -53,7 +53,7 @@ data class Movie(
     val title: String,
     val year: Int,
     val rating: Float,
-    val color: Color, // Placeholder cho poster
+    val color: Color,
     val description: String,
 )
 
@@ -86,44 +86,35 @@ sealed class ScreenState {
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedElementScreen(modifier: Modifier = Modifier) {
-    var screenState: ScreenState by remember { mutableStateOf(ScreenState.List) }
-
-    // SharedTransitionLayout: container cho tất cả shared element animations
-    // Tất cả composables bên trong có thể dùng Modifier.sharedElement()
-    SharedTransitionLayout(modifier = modifier.fillMaxSize()) {
-        // AnimatedContent: animate transition giữa List và Detail
-        // Kết hợp với SharedTransitionLayout để shared elements animate smoothly
-        AnimatedContent(
-            targetState = screenState,
-            transitionSpec = {
-                // Custom transition: fade + slide
-                fadeIn(animationSpec = tween(300)) togetherWith
-                    fadeOut(animationSpec = tween(300))
-            },
-            label = "screen_transition",
-        ) { state ->
-            when (state) {
-                is ScreenState.List -> {
-                    MovieListScreen(
-                        movies = sampleMovies,
-                        onMovieClick = { movie ->
-                            screenState = ScreenState.Detail(movie)
-                        },
-                        // Pass AnimatedVisibilityScope để sharedElement hoạt động
-                        animatedVisibilityScope = this@AnimatedContent,
-                    )
-                }
-
-                is ScreenState.Detail -> {
-                    MovieDetailScreen(
-                        movie = state.movie,
-                        onBack = { screenState = ScreenState.List },
-                        animatedVisibilityScope = this@AnimatedContent,
-                    )
-                }
-            }
-        }
-    }
+    // TODO: Implement SharedElementScreen
+    // 1. var screenState: ScreenState by remember { mutableStateOf(ScreenState.List) }
+    //
+    // 2. SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
+    //        // SharedTransitionLayout wrap tất cả content có shared elements
+    //        // Tất cả composables bên trong có thể dùng Modifier.sharedElement()
+    //
+    //        AnimatedContent(
+    //            targetState = screenState,
+    //            transitionSpec = {
+    //                fadeIn(tween(300)) togetherWith fadeOut(tween(300))
+    //            },
+    //            label = "screen_transition"
+    //        ) { state →
+    //            when (state) {
+    //                is ScreenState.List → MovieListScreen(
+    //                    movies = sampleMovies,
+    //                    onMovieClick = { movie → screenState = ScreenState.Detail(movie) },
+    //                    animatedVisibilityScope = this@AnimatedContent
+    //                )
+    //                is ScreenState.Detail → MovieDetailScreen(
+    //                    movie = state.movie,
+    //                    onBack = { screenState = ScreenState.List },
+    //                    animatedVisibilityScope = this@AnimatedContent
+    //                )
+    //            }
+    //        }
+    //    }
+    Box {}
 }
 
 // ─── Movie List Screen ────────────────────────────────────────────────────────
@@ -136,34 +127,14 @@ private fun SharedTransitionScope.MovieListScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        // Header
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "🎬 Movies",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = "Tap a movie to see shared element transition",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(items = movies, key = { it.id }) { movie ->
-                MovieListItem(
-                    movie = movie,
-                    onClick = { onMovieClick(movie) },
-                    animatedVisibilityScope = animatedVisibilityScope,
-                )
-            }
-        }
-    }
+    // TODO: Implement MovieListScreen
+    // - Column(fillMaxSize):
+    //   → Header: Text "🎬 Movies" + subtitle
+    //   → LazyColumn(contentPadding, spacedBy=12.dp):
+    //     items(movies, key = { it.id }) { movie →
+    //         MovieListItem(movie, onClick, animatedVisibilityScope)
+    //     }
+    Box {}
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -174,58 +145,37 @@ private fun SharedTransitionScope.MovieListItem(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            // Poster — SHARED ELEMENT
-            // sharedElement(): đánh dấu element này sẽ animate sang screen khác
-            // rememberSharedContentState(key): key phải UNIQUE và GIỐNG nhau ở cả 2 screens
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "poster_${movie.id}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        // boundsTransform: custom animation curve
-                        // Mặc định dùng spring(), có thể đổi sang tween() hoặc custom
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 400)
-                        },
-                    )
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(movie.color),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("🎬", style = MaterialTheme.typography.headlineLarge)
-            }
-
-            // Movie info
-            Column(modifier = Modifier.weight(1f)) {
-                // Title — cũng là shared element
-                Text(
-                    text = movie.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.sharedElement(
-                        state = rememberSharedContentState(key = "title_${movie.id}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                    ),
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${movie.year} • ⭐ ${movie.rating}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
+    // TODO: Implement MovieListItem với shared elements
+    // - Card(fillMaxWidth, clickable):
+    //   Row(padding=12.dp, spacedBy=12.dp):
+    //
+    //   // Poster — SHARED ELEMENT
+    //   Box(
+    //       modifier = Modifier
+    //           .size(80.dp)
+    //           .sharedElement(
+    //               state = rememberSharedContentState(key = "poster_${movie.id}"),
+    //               animatedVisibilityScope = animatedVisibilityScope,
+    //               boundsTransform = { _, _ → tween(durationMillis = 400) }
+    //           )
+    //           .clip(shapes.medium)
+    //           .background(movie.color)
+    //   ) { Text "🎬" (headlineLarge, Center) }
+    //
+    //   // Movie info
+    //   Column(weight(1f)):
+    //       // Title — also shared element
+    //       Text(
+    //           text = movie.title,
+    //           modifier = Modifier.sharedElement(
+    //               state = rememberSharedContentState(key = "title_${movie.id}"),
+    //               animatedVisibilityScope = animatedVisibilityScope
+    //           )
+    //       )
+    //       Text "${year} • ⭐ ${rating}"
+    //
+    // GỢI Ý: sharedElement key phải UNIQUE và GIỐNG nhau ở cả list và detail
+    Box {}
 }
 
 // ─── Movie Detail Screen ──────────────────────────────────────────────────────
@@ -238,115 +188,37 @@ private fun SharedTransitionScope.MovieDetailScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                ),
-            )
-        },
-        modifier = modifier,
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            // Large poster — SHARED ELEMENT (cùng key với list item)
-            // Compose sẽ tự animate từ vị trí nhỏ (list) sang vị trí lớn (detail)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(280.dp)
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "poster_${movie.id}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 400)
-                        },
-                    )
-                    .background(movie.color),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("🎬", style = MaterialTheme.typography.displayLarge)
-            }
-
-            Column(modifier = Modifier.padding(16.dp)) {
-                // Title — SHARED ELEMENT
-                Text(
-                    text = movie.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.sharedElement(
-                        state = rememberSharedContentState(key = "title_${movie.id}"),
-                        animatedVisibilityScope = animatedVisibilityScope,
-                    ),
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Non-shared content — sẽ fade in/out bình thường
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    AssistChip(
-                        onClick = { },
-                        label = { Text("${movie.year}") },
-                    )
-                    AssistChip(
-                        onClick = { },
-                        label = { Text("⭐ ${movie.rating}") },
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Description",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = movie.description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Info card
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    ),
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "💡 Shared Element Transition",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Poster và Title được animate từ list → detail.\n" +
-                                "Key: \"poster_${movie.id}\" và \"title_${movie.id}\"",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
-                    }
-                }
-            }
-        }
-    }
+    // TODO: Implement MovieDetailScreen với shared elements
+    // - Scaffold với TopAppBar (transparent, back icon)
+    // - Column(fillMaxSize):
+    //
+    //   // Large poster — SHARED ELEMENT (cùng key với list item)
+    //   Box(
+    //       modifier = Modifier
+    //           .fillMaxWidth()
+    //           .height(280.dp)
+    //           .sharedElement(
+    //               state = rememberSharedContentState(key = "poster_${movie.id}"),
+    //               animatedVisibilityScope = animatedVisibilityScope,
+    //               boundsTransform = { _, _ → tween(durationMillis = 400) }
+    //           )
+    //           .background(movie.color)
+    //   ) { Text "🎬" (displayLarge, Center) }
+    //
+    //   Column(padding=16.dp):
+    //       // Title — SHARED ELEMENT
+    //       Text(movie.title, modifier = Modifier.sharedElement(
+    //           state = rememberSharedContentState(key = "title_${movie.id}"), ...
+    //       ))
+    //
+    //       // Non-shared content (sẽ fade in/out bình thường)
+    //       Row chips: year + rating
+    //       Spacer + Text "Description" + Text movie.description
+    //       Card info về shared element transition
+    //
+    // GỢI Ý: Compose tự animate từ vị trí nhỏ (list) → vị trí lớn (detail)
+    // vì key giống nhau
+    Box {}
 }
 
 // ─── Previews ─────────────────────────────────────────────────────────────────

@@ -47,8 +47,6 @@ import com.apero.composetraining.common.AppTheme
  * - graphicsLayer { scaleX; scaleY; alpha } cho visual effects
  * - Custom Layout composable (nếu tự implement FlowRow)
  * - IntrinsicSize.Max + fillMaxHeight
- *
- * NOTE: File này là SCAFFOLD — các TODO là phần học viên tự implement
  */
 
 // ─── Data Models ──────────────────────────────────────────────────────────────
@@ -96,63 +94,16 @@ fun GitHubProfileCard(
     profile: GitHubProfile,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-
-            // 1. Header: Avatar + Name + Bio
-            ProfileHeader(
-                username = profile.username,
-                displayName = profile.displayName,
-                bio = profile.bio,
-                location = profile.location
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 2. Stats row
-            ProfileStats(
-                repoCount = profile.repoCount,
-                starCount = profile.starCount,
-                followerCount = profile.followerCount
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 3. Languages
-            Text(
-                text = "Languages",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LanguageChips(languages = profile.languages)
-
-            if (profile.pinnedRepos.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 4. Pinned repos
-                Text(
-                    text = "Pinned",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                PinnedReposRow(repos = profile.pinnedRepos)
-            }
-        }
-    }
+    // TODO: Implement GitHubProfileCard
+    // - Card với fillMaxWidth, padding(16.dp), RoundedCornerShape(16.dp)
+    // - Column bên trong với padding(20.dp)
+    // - Gọi ProfileHeader (username, displayName, bio, location)
+    // - Spacer + HorizontalDivider + Spacer
+    // - Gọi ProfileStats (repoCount, starCount, followerCount)
+    // - Spacer + HorizontalDivider + Spacer
+    // - Text "Languages" label + LanguageChips(languages)
+    // - Nếu pinnedRepos không rỗng: HorizontalDivider + Text "Pinned" + PinnedReposRow
+    Box {}
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -165,41 +116,15 @@ fun ProfileHeader(
     location: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // TODO: [Nâng cao] GradientAvatar với gradient border
-        GradientAvatar(username = username, size = 72)
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = displayName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "@$username",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = bio,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = "📍 $location",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    // TODO: Implement ProfileHeader
+    // - Row với verticalAlignment = CenterVertically
+    // - GradientAvatar(username, size = 72) bên trái
+    // - Spacer(16.dp) rồi Column (weight(1f)):
+    //   → Text displayName (titleLarge, Bold)
+    //   → Text "@$username" (primary color)
+    //   → Text bio (bodySmall, onSurfaceVariant, maxLines=2, Ellipsis)
+    //   → Text "📍 $location" (bodySmall, onSurfaceVariant)
+    Box {}
 }
 
 /**
@@ -209,7 +134,7 @@ fun ProfileHeader(
  *
  * Cách implement gradient border:
  * Box(modifier = Modifier
- *     .size(size.dp + 4.dp)  // Slightly larger for border
+ *     .size(size.dp + 4.dp)       // Lớn hơn 4dp để tạo border
  *     .clip(CircleShape)
  *     .background(
  *         Brush.linearGradient(
@@ -217,12 +142,7 @@ fun ProfileHeader(
  *         )
  *     )
  * ) {
- *     Box(modifier = Modifier
- *         .size(size.dp)
- *         .clip(CircleShape)
- *         .background(MaterialTheme.colorScheme.surface)
- *         .align(Alignment.Center)
- *     ) {
+ *     Box(modifier = Modifier.size(size.dp).clip(CircleShape).align(Alignment.Center)) {
  *         // Avatar content
  *     }
  * }
@@ -233,39 +153,14 @@ fun GradientAvatar(
     size: Int,
     modifier: Modifier = Modifier
 ) {
-    // TODO: [Nâng cao] Thay thế solid border bằng gradient border
-    // Gradient border = Instagram-style purple→red→orange
-    Box(
-        modifier = modifier
-            .size((size + 4).dp)
-            .clip(CircleShape)
-            .background(
-                // TODO: Đổi thành Brush.linearGradient với multiple colors
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF833AB4), // Instagram purple
-                        Color(0xFFFD1D1D), // Red
-                        Color(0xFFFCB045)  // Orange/yellow
-                    )
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(size.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = username.first().uppercaseChar().toString(),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = (size / 2.5).sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
+    // TODO: Implement GradientAvatar với gradient border
+    // - Box ngoài: size = (size+4).dp, clip(CircleShape),
+    //   background(Brush.linearGradient) với màu Instagram-style purple→red→orange
+    //   GỢI Ý: colors = listOf(Color(0xFF833AB4), Color(0xFFFD1D1D), Color(0xFFFCB045))
+    // - Box trong: size = size.dp, clip(CircleShape), background(primary),
+    //   align(Alignment.Center)
+    // - Text chữ cái đầu username (fontSize = size/2.5, Bold, onPrimary)
+    Box {}
 }
 
 @Composable
@@ -275,33 +170,11 @@ fun ProfileStats(
     followerCount: Int,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        StatItem(
-            icon = Icons.Outlined.FolderOpen,
-            count = repoCount,
-            label = "repos"
-        )
-
-        VerticalDivider(modifier = Modifier.height(32.dp))
-
-        StatItem(
-            icon = Icons.Outlined.Star,
-            count = starCount,
-            label = "stars"
-        )
-
-        VerticalDivider(modifier = Modifier.height(32.dp))
-
-        StatItem(
-            icon = Icons.Outlined.People,
-            count = followerCount,
-            label = "followers"
-        )
-    }
+    // TODO: Implement ProfileStats
+    // - Row với fillMaxWidth, SpaceEvenly, verticalAlignment = CenterVertically
+    // - 3 StatItem: FolderOpen+repoCount+"repos", Star+starCount+"stars", People+followerCount+"followers"
+    // - VerticalDivider(height=32.dp) giữa mỗi stat
+    Box {}
 }
 
 @Composable
@@ -311,32 +184,11 @@ fun StatItem(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    // TODO: Implement StatItem
+    // - Column với horizontalAlignment = CenterHorizontally
+    // - Row: Icon(16.dp, primary) + Text count (titleMedium, Bold)
+    // - Text label (bodySmall, onSurfaceVariant)
+    Box {}
 }
 
 /**
@@ -345,38 +197,21 @@ fun StatItem(
  * TODO: [Nâng cao] Implement FlowRow để chips wrap tự động
  *
  * Option 1 (Easy): Dùng accompanist FlowRow
- * dependencies { implementation "com.google.accompanist:accompanist-flowlayout:0.34.0" }
- *
  * Option 2 (Hard): Tự implement với Layout composable
- * @Composable
- * fun FlowRow(content: @Composable () -> Unit) {
- *     Layout(content = content) { measurables, constraints ->
- *         // Measure và place từng item, wrap khi hết row width
- *     }
- * }
  *
- * Hôm nay: Dùng Row wrap = nếu nhiều lang thì scroll hoặc chia 2 Row
+ * Tạm thời: chia 2 Row (take(3) + drop(3))
  */
 @Composable
 fun LanguageChips(
     languages: List<String>,
     modifier: Modifier = Modifier
 ) {
-    // TODO: [Nâng cao] Thay bằng FlowRow để auto-wrap
-    // Tạm thời: chia 2 row
-    val firstRow = languages.take(3)
-    val secondRow = languages.drop(3)
-
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            firstRow.forEach { lang -> LanguageChip(language = lang) }
-        }
-        if (secondRow.isNotEmpty()) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                secondRow.forEach { lang -> LanguageChip(language = lang) }
-            }
-        }
-    }
+    // TODO: Implement LanguageChips
+    // - Column với spacedBy(6.dp)
+    // - Row 1: languages.take(3) → mỗi item gọi LanguageChip(lang)
+    // - Row 2: languages.drop(3) nếu có → tương tự
+    // GỢI Ý NÂNG CAO: Dùng FlowRow để auto-wrap thay vì chia cứng
+    Box {}
 }
 
 @Composable
@@ -384,19 +219,11 @@ fun LanguageChip(
     language: String,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.secondaryContainer
-    ) {
-        Text(
-            text = language,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            fontWeight = FontWeight.Medium
-        )
-    }
+    // TODO: Implement LanguageChip
+    // - Surface với RoundedCornerShape(50) (pill shape), secondaryContainer color
+    // - Text bên trong với padding horizontal=10, vertical=4
+    // - labelSmall, onSecondaryContainer, FontWeight.Medium
+    Box {}
 }
 
 /**
@@ -406,14 +233,10 @@ fun LanguageChip(
  *
  * Cách implement hover/press effect với graphicsLayer:
  * var isPressed by remember { mutableStateOf(false) }
- * PinnedRepoCard(
- *     modifier = Modifier
- *         .clickable { ... }
- *         .graphicsLayer {
- *             scaleX = if (isPressed) 0.97f else 1f
- *             scaleY = if (isPressed) 0.97f else 1f
- *         }
- * )
+ * Modifier.graphicsLayer {
+ *     scaleX = if (isPressed) 0.97f else 1f
+ *     scaleY = if (isPressed) 0.97f else 1f
+ * }
  * Note: State cần Buổi 3 — hôm nay mock với alpha thay đổi tĩnh
  */
 @Composable
@@ -421,22 +244,11 @@ fun PinnedReposRow(
     repos: List<PinnedRepo>,
     modifier: Modifier = Modifier
 ) {
-    // EQUAL HEIGHT — IntrinsicSize.Max
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Max), // ← Equal height magic
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        repos.forEach { repo ->
-            PinnedRepoCard(
-                repo = repo,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight() // ← Phối hợp với IntrinsicSize.Max
-            )
-        }
-    }
+    // TODO: Implement PinnedReposRow với EQUAL HEIGHT
+    // - Row với fillMaxWidth + height(IntrinsicSize.Max), spacedBy(12.dp)
+    // - Với mỗi repo: PinnedRepoCard(repo, Modifier.weight(1f).fillMaxHeight())
+    // GỢI Ý: Thiếu fillMaxHeight() trên card → height không đều dù có IntrinsicSize.Max
+    Box {}
 }
 
 @Composable
@@ -444,74 +256,13 @@ fun PinnedRepoCard(
     repo: PinnedRepo,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .clickable { /* TODO: Navigate to repo */ }
-            // TODO: [Nâng cao] Thêm graphicsLayer cho visual feedback
-            .graphicsLayer {
-                // Mock effect — trong thực tế cần State (Buổi 3)
-                // scaleX = 0.97f  // Thử uncomment để xem effect
-                // scaleY = 0.97f
-            },
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    text = repo.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = repo.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                )
-                Text(
-                    text = repo.language,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    imageVector = Icons.Outlined.Star,
-                    contentDescription = "Stars",
-                    modifier = Modifier.size(12.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = repo.stars.toString(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
+    // TODO: Implement PinnedRepoCard
+    // - Card với clickable, RoundedCornerShape(8.dp), surfaceVariant color
+    // - NÂNG CAO: Thêm graphicsLayer { scaleX, scaleY } cho visual feedback
+    // - Column bên trong với fillMaxHeight, padding(12.dp), SpaceBetween
+    // - Header: Text repo.name (titleSmall, Bold, maxLines=1) + Text description (bodySmall, 2 dòng)
+    // - Footer Row: dot language + Text language + Spacer(weight(1f)) + Star icon + stars count
+    Box {}
 }
 
 // ─── Preview ─────────────────────────────────────────────────────────────────

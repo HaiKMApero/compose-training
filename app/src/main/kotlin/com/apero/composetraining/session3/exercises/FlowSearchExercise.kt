@@ -80,18 +80,15 @@ private val fakeContacts = listOf(
 
 // Sealed class để represent các trạng thái của search result
 sealed class SearchResult {
-    // Đang load (debounce chưa xong hoặc đang query)
     data object Loading : SearchResult()
-    // Có kết quả
     data class Success(val contacts: List<Contact>) : SearchResult()
-    // Không tìm thấy
     data object Empty : SearchResult()
 }
 
 // ─── Main Composable ─────────────────────────────────────────────────────────
 
 /**
- * FlowSearchScreen - màn hình search chính
+ * FlowSearchScreen — màn hình search chính
  *
  * Pattern: SearchScreen tự quản lý query state (stateful),
  * nhưng tách logic search ra produceState/snapshotFlow
@@ -99,106 +96,35 @@ sealed class SearchResult {
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun FlowSearchScreen(modifier: Modifier = Modifier) {
-    // State cho search query — Compose State bình thường
-    var searchQuery by remember { mutableStateOf("") }
-
-    // snapshotFlow: chuyển Compose State (searchQuery) → Flow
-    // Tại sao dùng snapshotFlow thay vì observe trực tiếp?
-    // → Để dùng được Flow operators: debounce, distinctUntilChanged, mapLatest
-    // → Không thể dùng các operators này trực tiếp trên MutableState
-    val searchResultState: SearchResult by produceState<SearchResult>(
-        initialValue = SearchResult.Success(fakeContacts),
-        key1 = searchQuery, // relaunch khi searchQuery thay đổi
-    ) {
-        // Bên trong produceState: chạy trong coroutine, có thể suspend
-        // value = cách set kết quả vào State
-
-        // Tạo Flow từ searchQuery state
-        // snapshotFlow sẽ emit mỗi khi searchQuery thay đổi
-        snapshotFlow { searchQuery }
-            .debounce(300L) // Đợi user ngừng gõ 300ms mới search
-            // → Tránh search mỗi keystroke, tiết kiệm resources
-            .distinctUntilChanged() // Bỏ qua nếu query không đổi
-            .mapLatest { query ->
-                // mapLatest: cancel query cũ nếu query mới arrive
-                value = SearchResult.Loading
-                delay(300L) // Giả lập network call / database query
-
-                val results = if (query.isEmpty()) {
-                    fakeContacts // Không filter nếu query rỗng
-                } else {
-                    fakeContacts.filter { contact ->
-                        contact.name.contains(query, ignoreCase = true)
-                    }
-                }
-
-                if (results.isEmpty()) SearchResult.Empty else SearchResult.Success(results)
-            }
-            .collect { result ->
-                value = result // Cập nhật State
-            }
-    }
-
-    // Lưu ý: searchResultState bên trên dùng produceState trực tiếp
-    // Cách khác: tạo StateFlow trong ViewModel rồi collectAsStateWithLifecycle
-    // Demo collectAsStateWithLifecycle ở dưới (cần ViewModel)
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-    ) {
-        // Tiêu đề
-        Text(
-            text = "Contact Search",
-            style = MaterialTheme.typography.headlineMedium,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "Dùng snapshotFlow + produceState + collectAsStateWithLifecycle",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Search TextField
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hiển thị kết quả dựa theo state
-        when (val result = searchResultState) {
-            is SearchResult.Loading -> {
-                // Loading indicator ở giữa màn hình
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is SearchResult.Empty -> {
-                // Empty state khi không tìm thấy
-                EmptySearchState(query = searchQuery)
-            }
-
-            is SearchResult.Success -> {
-                // Hiển thị kết quả với counter
-                Text(
-                    text = "${result.contacts.size} contacts found",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                ContactResultList(contacts = result.contacts)
-            }
-        }
-    }
+    // TODO: Implement FlowSearchScreen
+    // 1. Khai báo: var searchQuery by remember { mutableStateOf("") }
+    // 2. Khai báo searchResultState bằng produceState:
+    //    val searchResultState: SearchResult by produceState(
+    //        initialValue = SearchResult.Success(fakeContacts),
+    //        key1 = searchQuery
+    //    ) {
+    //        // Bên trong produceState chạy trong coroutine
+    //        snapshotFlow { searchQuery }           ← chuyển State → Flow
+    //            .debounce(300L)                    ← đợi user ngừng gõ 300ms
+    //            .distinctUntilChanged()             ← bỏ qua query không đổi
+    //            .mapLatest { query ->
+    //                value = SearchResult.Loading   ← set loading
+    //                delay(300L)                    ← giả lập network
+    //                // filter fakeContacts theo query
+    //                // return Success hoặc Empty
+    //            }
+    //            .collect { value = it }
+    //    }
+    // 3. Column(fillMaxSize, padding=16.dp):
+    //    → Text tiêu đề + subtitle
+    //    → Spacer + SearchBar(searchQuery, onQueryChange = { searchQuery = it })
+    //    → Spacer + when(searchResultState):
+    //        Loading → Box(fillMaxSize, Center) { CircularProgressIndicator() }
+    //        Empty → EmptySearchState(searchQuery)
+    //        Success → Text count + ContactResultList(contacts)
+    // GỢI Ý: Tại sao dùng snapshotFlow thay vì observe searchQuery trực tiếp?
+    // → Để dùng được .debounce(), .distinctUntilChanged() — không có trên MutableState
+    Box {}
 }
 
 // ─── Search Bar Component ─────────────────────────────────────────────────────
@@ -209,25 +135,12 @@ private fun SearchBar(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
-        placeholder = { Text("Search contacts...") },
-        leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Search icon")
-        },
-        trailingIcon = {
-            // Hiện nút Clear khi có text
-            if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Clear, contentDescription = "Clear search")
-                }
-            }
-        },
-        singleLine = true,
-        shape = MaterialTheme.shapes.large,
-    )
+    // TODO: Implement SearchBar
+    // - OutlinedTextField với fillMaxWidth + singleLine + shapes.large
+    // - placeholder: "Search contacts..."
+    // - leadingIcon: Icon(Search)
+    // - trailingIcon: nếu query.isNotEmpty() → IconButton với Icon(Clear), onClick = { onQueryChange("") }
+    Box {}
 }
 
 // ─── Contact List ─────────────────────────────────────────────────────────────
@@ -237,18 +150,11 @@ private fun ContactResultList(
     contacts: List<Contact>,
     modifier: Modifier = Modifier,
 ) {
-    // Key = contact.id để Compose track đúng item khi list thay đổi
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        items(
-            items = contacts,
-            key = { it.id }, // Key quan trọng cho animation và performance
-        ) { contact ->
-            ContactItem(contact = contact)
-        }
-    }
+    // TODO: Implement ContactResultList
+    // - LazyColumn với fillMaxSize + spacedBy(4.dp)
+    // - items(contacts, key = { it.id }) { contact → ContactItem(contact) }
+    // GỢI Ý: key = { it.id } quan trọng cho animation và performance tracking
+    Box {}
 }
 
 @Composable
@@ -256,39 +162,14 @@ private fun ContactItem(
     contact: Contact,
     modifier: Modifier = Modifier,
 ) {
-    ListItem(
-        headlineContent = {
-            Text(
-                text = contact.name,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-        },
-        supportingContent = {
-            Text(
-                text = contact.email,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        },
-        leadingContent = {
-            // Avatar placeholder
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(40.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            }
-        },
-        modifier = modifier,
-    )
+    // TODO: Implement ContactItem
+    // - ListItem với:
+    //   headlineContent: Text contact.name
+    //   supportingContent: Text contact.email (onSurfaceVariant)
+    //   leadingContent: Surface(size=40dp, extraLarge shape, primaryContainer) {
+    //       Box(Center) { Icon(Person, size=24dp) }
+    //   }
+    Box {}
 }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
@@ -298,30 +179,13 @@ private fun EmptySearchState(
     query: String,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "No contacts found",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "No results for \"$query\"",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline,
-        )
-    }
+    // TODO: Implement EmptySearchState
+    // - Column(fillMaxSize, Center, CenterHorizontally)
+    // - Icon(Search, size=64dp, onSurfaceVariant)
+    // - Spacer(16.dp)
+    // - Text "No contacts found" (titleMedium, onSurfaceVariant)
+    // - Text "No results for \"$query\"" (bodyMedium, outline)
+    Box {}
 }
 
 // ─── collectAsStateWithLifecycle Demo ────────────────────────────────────────
@@ -341,39 +205,13 @@ private fun EmptySearchState(
  * Cú pháp:
  * val uiState by viewModel.uiState.collectAsStateWithLifecycle()
  * //                                  ↑ Lifecycle-aware, tự pause/resume
- *
- * Cần import:
- * import androidx.lifecycle.compose.collectAsStateWithLifecycle
- * Dependency: androidx.lifecycle:lifecycle-runtime-compose
  */
 @Composable
 private fun CollectAsStateDemo(modifier: Modifier = Modifier) {
-    // Ví dụ sử dụng collectAsStateWithLifecycle với StateFlow từ ViewModel:
-    // val uiState by viewModel.searchResults.collectAsStateWithLifecycle()
-
-    // Hoặc với bất kỳ Flow nào:
-    // val names by someFlow.collectAsStateWithLifecycle(initialValue = emptyList())
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "📚 collectAsStateWithLifecycle",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "✅ Pause khi background\n✅ Resume khi foreground\n✅ Tiết kiệm battery",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-        }
-    }
+    // TODO: Implement demo card giải thích collectAsStateWithLifecycle
+    // - Card với secondaryContainer color
+    // - Column padding(16.dp): Text title + Text description
+    Box {}
 }
 
 // ─── Previews ─────────────────────────────────────────────────────────────────

@@ -70,11 +70,10 @@ fun ChatBubble(
     message: ChatMessage,
     modifier: Modifier = Modifier
 ) {
-    if (message.isSent) {
-        SentBubble(message = message, modifier = modifier)
-    } else {
-        ReceivedBubble(message = message, modifier = modifier)
-    }
+    // TODO: Implement ChatBubble dispatcher
+    // - Nếu message.isSent = true → gọi SentBubble
+    // - Ngược lại → gọi ReceivedBubble
+    Box {}
 }
 
 /**
@@ -83,12 +82,13 @@ fun ChatBubble(
  * TODO: [Buổi 2] Implement layout:
  * Row {
  *     SenderAvatar(...)                          // Avatar bên trái
- *     Spacer(4dp)
- *     Column {
+ *     Spacer(8dp)
+ *     Column(weight(0.75f)) {
+ *         Text senderName (labelSmall, primary)  // Tên người gửi
  *         BubbleContent(isSent = false, ...)     // Bubble
- *         Timestamp(...)                          // Thời gian
+ *         Text time (labelSmall, secondary)      // Thời gian
  *     }
- *     Spacer(weight(1f))                         // Đẩy bubble sang trái, max 75% width
+ *     Spacer(weight(0.25f))                      // Đẩy bubble sang trái, max 75% width
  * }
  */
 @Composable
@@ -96,49 +96,18 @@ fun ReceivedBubble(
     message: ChatMessage,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        // Avatar người gửi
-        SenderAvatar(
-            name = message.senderName,
-            modifier = Modifier.size(32.dp)
-        )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Bubble + Timestamp column
-        Column(modifier = Modifier.weight(0.75f)) {
-            // Sender name (chỉ show trong group chat)
-            Text(
-                text = message.senderName,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
-            )
-
-            // Bubble — received shape: tất cả bo trừ góc dưới trái
-            BubbleContent(
-                content = message.content,
-                isSent = false
-            )
-
-            // Timestamp
-            Text(
-                text = message.time,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp, top = 2.dp)
-            )
-        }
-
-        // Spacer để bubble không chiếm full width (để 25% bên phải)
-        Spacer(modifier = Modifier.weight(0.25f))
-    }
+    // TODO: Implement ReceivedBubble
+    // - Row với fillMaxWidth + padding(horizontal=12, vertical=4), verticalAlignment = Bottom
+    // - SenderAvatar(senderName, size=32.dp)
+    // - Spacer(8.dp)
+    // - Column (weight(0.75f)):
+    //   → Text senderName (labelSmall, primary, Medium, padding start=4dp)
+    //   → BubbleContent(content, isSent = false)
+    //   → Text time (labelSmall, onSurfaceVariant, padding start=4dp)
+    // - Spacer(weight(0.25f)) ← đẩy bubble không chiếm full width
+    // GỢI Ý: Tại sao dùng weight thay vì fillMaxWidth(0.75f)?
+    // → weight chia sẻ không gian còn lại sau siblings (Avatar + gaps)
+    Box {}
 }
 
 /**
@@ -146,12 +115,12 @@ fun ReceivedBubble(
  *
  * TODO: [Buổi 2] Implement layout:
  * Row(horizontalArrangement = Arrangement.End) {
- *     Spacer(weight(1f))                         // Push về bên phải
- *     Column(horizontalAlignment = Alignment.End) {
+ *     Spacer(weight(0.25f))                      // Push về bên phải
+ *     Column(weight(0.75f), horizontalAlignment = Alignment.End) {
  *         BubbleContent(isSent = true, ...)
- *         Row { Timestamp + ReadReceipt }        // Align cuối
+ *         Row { Timestamp + ReadReceiptIcon }    // Align cuối
  *     }
- *     Spacer(4dp)
+ *     Spacer(8dp)
  *     SenderAvatar(...)                          // Avatar bên phải
  * }
  */
@@ -160,52 +129,17 @@ fun SentBubble(
     message: ChatMessage,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.End   // TODO: Tại sao Arrangement.End?
-    ) {
-        // Space bên trái để bubble không full width
-        Spacer(modifier = Modifier.weight(0.25f))
-
-        // Bubble + Timestamp
-        Column(
-            modifier = Modifier.weight(0.75f),
-            horizontalAlignment = Alignment.End    // Align về phải
-        ) {
-            // Bubble — sent shape: tất cả bo trừ góc dưới phải
-            BubbleContent(
-                content = message.content,
-                isSent = true
-            )
-
-            // Timestamp + Read receipt
-            Row(
-                modifier = Modifier.padding(end = 4.dp, top = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = message.time,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                // Read receipt checkmarks
-                ReadReceiptIcon(isRead = message.isRead)
-            }
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Avatar bên phải (mình)
-        SenderAvatar(
-            name = "Me",
-            modifier = Modifier.size(32.dp),
-            backgroundColor = MaterialTheme.colorScheme.primary
-        )
-    }
+    // TODO: Implement SentBubble
+    // - Row với fillMaxWidth + padding(horizontal=12, vertical=4), verticalAlignment = Bottom,
+    //   horizontalArrangement = Arrangement.End
+    //   GỢI Ý: Arrangement.End + Spacer(weight) làm bubble đẩy về phải
+    // - Spacer(weight(0.25f))
+    // - Column (weight(0.75f), horizontalAlignment = Alignment.End):
+    //   → BubbleContent(content, isSent = true)
+    //   → Row (padding end=4dp, spacedBy=4dp): Text time + ReadReceiptIcon(isRead)
+    // - Spacer(8.dp)
+    // - SenderAvatar("Me", size=32.dp, backgroundColor = primary)
+    Box {}
 }
 
 /**
@@ -223,49 +157,15 @@ fun BubbleContent(
     isSent: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val bubbleShape = if (isSent) {
-        // Sent: góc dưới phải nhỏ (tail)
-        RoundedCornerShape(
-            topStart = 12.dp,
-            topEnd = 12.dp,
-            bottomStart = 12.dp,
-            bottomEnd = 2.dp   // ← tail
-        )
-    } else {
-        // Received: góc dưới trái nhỏ (tail)
-        RoundedCornerShape(
-            topStart = 2.dp,   // ← tail
-            topEnd = 12.dp,
-            bottomStart = 12.dp,
-            bottomEnd = 12.dp
-        )
-    }
-
-    val bubbleColor = if (isSent) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant
-    }
-
-    val textColor = if (isSent) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Box(
-        modifier = modifier
-            .clip(bubbleShape)
-            .background(bubbleColor)
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = content,
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor,
-            lineHeight = 20.sp
-        )
-    }
+    // TODO: Implement BubbleContent
+    // - Xác định bubbleShape:
+    //   → isSent: tất cả 12.dp trừ bottomEnd = 2.dp (tail)
+    //   → !isSent: tất cả 12.dp trừ topStart = 2.dp (tail)
+    // - Xác định bubbleColor: primary nếu sent, surfaceVariant nếu received
+    // - Xác định textColor: onPrimary nếu sent, onSurfaceVariant nếu received
+    // - Box với clip(bubbleShape) + background(bubbleColor) + padding(horizontal=12, vertical=8)
+    // - Text bên trong với textColor và lineHeight = 20.sp
+    Box {}
 }
 
 @Composable
@@ -274,19 +174,10 @@ fun SenderAvatar(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.secondary
 ) {
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(backgroundColor),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = name.first().uppercaseChar().toString(),
-            color = Color.White,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    // TODO: Implement SenderAvatar
+    // - Box với clip(CircleShape) + background(backgroundColor)
+    // - Text chữ cái đầu của name (uppercaseChar, White, labelMedium, Bold)
+    Box {}
 }
 
 @Composable
@@ -294,16 +185,10 @@ fun ReadReceiptIcon(
     isRead: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Icon(
-        imageVector = if (isRead) Icons.Default.DoneAll else Icons.Default.Done,
-        contentDescription = if (isRead) "Đã xem" else "Đã gửi",
-        modifier = modifier.size(14.dp),
-        tint = if (isRead) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        }
-    )
+    // TODO: Implement ReadReceiptIcon
+    // - Icon: DoneAll nếu isRead, Done nếu chưa read — size(14.dp)
+    // - Tint: primary nếu isRead, onSurfaceVariant nếu chưa
+    Box {}
 }
 
 // ─── Sample Data ──────────────────────────────────────────────────────────────
@@ -382,20 +267,7 @@ private fun ChatBubbleDarkPreview() {
 // ─── Câu Hỏi Thảo Luận ───────────────────────────────────────────────────────
 /*
  * Q1: Tại sao dùng weight(0.75f) thay vì fillMaxWidth(0.75f)?
- *     → fillMaxWidth(0.75f) lấy 75% của parent width tuyệt đối.
- *       weight() chia sẻ không gian còn lại sau siblings.
- *       Trong Row có Avatar (32dp), weight(0.75f) = 75% của (width - 32dp - gaps).
- *
  * Q2: Asymmetric RoundedCornerShape — tại sao "tail" chỉ 2dp?
- *     → Tạo visual cue về hướng của bubble (trỏ về avatar sender).
- *       Đây là UI pattern của iMessage, WhatsApp, Telegram.
- *
  * Q3: Arrangement.End trong SentBubble Row — có thể bỏ không?
- *     → Có thể bỏ vì Spacer(weight(0.25f)) đã push sang phải.
- *       Nhưng Arrangement.End rõ intent hơn — code đọc dễ hiểu hơn.
- *
  * Q4: Modifier.align() per-child vs horizontalAlignment của Column?
- *     → Column(horizontalAlignment = Alignment.End) = tất cả children align End.
- *     → Modifier.align(Alignment.Start) per-child = exception cho 1 child cụ thể.
- *     → Kết hợp: Column(horizontalAlignment = End) với 1 child có .align(Start)
  */

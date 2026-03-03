@@ -70,39 +70,15 @@ fun EventTicketCard(
     section: String,
     modifier: Modifier = Modifier
 ) {
-    // Card background với clip trước, elevation sau
-    // TODO: [Buổi 2] Tại sao clip phải TRƯỚC khi set background Card?
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column {
-            // ── TOP SECTION: Event info ──────────────────────────────────
-            TicketTopSection(
-                eventName = eventName,
-                eventSubtitle = eventSubtitle,
-                location = location,
-                dateTime = dateTime
-            )
-
-            // ── NOTCHED DIVIDER ──────────────────────────────────────────
-            // TODO: [Nâng cao] Implement notched divider
-            // Cách đơn giản: Box + 2 circles ở 2 đầu
-            NotchedDivider()
-
-            // ── BOTTOM SECTION: Seat + QR ────────────────────────────────
-            TicketBottomSection(
-                seatInfo = seatInfo,
-                section = section
-            )
-        }
-    }
+    // TODO: Implement EventTicketCard
+    // - Card với fillMaxWidth, padding(16.dp), RoundedCornerShape(16.dp), elevation(8.dp)
+    // - Column bên trong
+    // - Gọi TicketTopSection(eventName, eventSubtitle, location, dateTime)
+    // - Gọi NotchedDivider()
+    // - Gọi TicketBottomSection(seatInfo, section)
+    // GỢI Ý: Tại sao clip phải TRƯỚC khi set background Card?
+    // → clip xác định vùng vẽ, background fill vùng đó → clip trước để corners bo đúng
+    Box {}
 }
 
 @Composable
@@ -113,74 +89,14 @@ fun TicketTopSection(
     dateTime: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(20.dp)
-    ) {
-        // Event emoji + name
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text("🎵", fontSize = 28.sp)
-            Column {
-                Text(
-                    text = eventName,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-                Text(
-                    text = eventSubtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Location + DateTime
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Location
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.LocationOn,
-                    contentDescription = "Địa điểm",
-                    tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                    modifier = Modifier.size(16.dp)
-                )
-                Text(
-                    text = location,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                )
-            }
-
-            // DateTime badge
-            Surface(
-                shape = RoundedCornerShape(50),
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
-            ) {
-                Text(
-                    text = dateTime,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-    }
+    // TODO: Implement TicketTopSection
+    // - Column với fillMaxWidth + background(primary) + padding(20.dp)
+    // - Row header: Text "🎵" (28.sp) + Column(eventName bold + eventSubtitle onPrimary.alpha(0.8f))
+    // - Spacer(16.dp)
+    // - Row location + dateTime: SpaceBetween, CenterVertically
+    //   → Bên trái: Row với Icon(LocationOn, 16.dp) + Text location
+    //   → Bên phải: Surface pill (RoundedCornerShape(50)) + Text dateTime
+    Box {}
 }
 
 /**
@@ -190,19 +106,18 @@ fun TicketTopSection(
  *
  * TODO: [Nâng cao] Implement đúng như hình:
  * Box {
- *     // Dashed divider ở giữa
  *     DashedDivider(modifier = Modifier.align(Alignment.Center))
  *
- *     // Notch trái — "cắt" vào edge trái
+ *     // Notch trái — half outside left edge
  *     Box(modifier = Modifier
  *         .size(24.dp)
- *         .offset(x = (-12).dp)  // Half outside left edge
+ *         .offset(x = (-12).dp)
  *         .clip(CircleShape)
  *         .background(MaterialTheme.colorScheme.background)
  *         .align(Alignment.CenterStart)
  *     )
  *
- *     // Notch phải — "cắt" vào edge phải
+ *     // Notch phải — half outside right edge
  *     Box(modifier = Modifier
  *         .size(24.dp)
  *         .offset(x = 12.dp)
@@ -220,36 +135,15 @@ fun NotchedDivider(
     notchSize: Dp = 24.dp,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(notchSize)
-    ) {
-        // Dashed line ở giữa
-        DashedDivider(
-            modifier = Modifier.align(Alignment.Center)
-        )
-
-        // Notch trái
-        Box(
-            modifier = Modifier
-                .size(notchSize)
-                .offset(x = -(notchSize / 2))
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.background)
-                .align(Alignment.CenterStart)
-        )
-
-        // Notch phải
-        Box(
-            modifier = Modifier
-                .size(notchSize)
-                .offset(x = notchSize / 2)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.background)
-                .align(Alignment.CenterEnd)
-        )
-    }
+    // TODO: Implement NotchedDivider
+    // - Box với fillMaxWidth + height(notchSize)
+    // - DashedDivider ở giữa (align = Alignment.Center)
+    // - Box notch trái: size(notchSize), offset(x = -(notchSize/2)), clip(CircleShape),
+    //   background(MaterialTheme.colorScheme.background), align(Alignment.CenterStart)
+    // - Box notch phải: tương tự nhưng offset(x = notchSize/2), align(Alignment.CenterEnd)
+    // GỢI Ý: Tại sao dùng offset() thay vì padding âm?
+    // → Compose không hỗ trợ padding âm. offset() di chuyển visual không ảnh hưởng layout.
+    Box {}
 }
 
 /**
@@ -267,18 +161,10 @@ fun DashedDivider(
     strokeWidth: Float = 2f,
     modifier: Modifier = Modifier
 ) {
-    Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(strokeWidth.dp)
-    ) {
-        drawDashedLine(
-            color = color,
-            dashWidth = dashWidth,
-            gapWidth = gapWidth,
-            strokeWidth = strokeWidth
-        )
-    }
+    // TODO: Implement DashedDivider
+    // - Canvas với fillMaxWidth + height(strokeWidth.dp)
+    // - Bên trong Canvas: gọi drawDashedLine(color, dashWidth, gapWidth, strokeWidth)
+    Box {}
 }
 
 private fun DrawScope.drawDashedLine(
@@ -287,18 +173,10 @@ private fun DrawScope.drawDashedLine(
     gapWidth: Float,
     strokeWidth: Float
 ) {
-    val pathEffect = PathEffect.dashPathEffect(
-        intervals = floatArrayOf(dashWidth, gapWidth),
-        phase = 0f
-    )
-    drawLine(
-        color = color,
-        start = Offset(0f, size.height / 2),
-        end = Offset(size.width, size.height / 2),
-        strokeWidth = strokeWidth,
-        cap = StrokeCap.Round,
-        pathEffect = pathEffect
-    )
+    // TODO: Implement drawDashedLine
+    // - Tạo pathEffect = PathEffect.dashPathEffect(floatArrayOf(dashWidth, gapWidth), phase=0f)
+    // - drawLine từ (0, size.height/2) đến (size.width, size.height/2)
+    //   với color, strokeWidth, cap=StrokeCap.Round, pathEffect
 }
 
 @Composable
@@ -307,71 +185,15 @@ fun TicketBottomSection(
     section: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Seat info — Column bên trái
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "ADMIT ONE",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = seatInfo,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = section,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        // Divider dọc giữa 2 column
-        // TODO: [Buổi 2] Tại sao cần VerticalDivider thay vì width(1.dp).background()?
-        // VerticalDivider tự động fill height của parent Row
-        VerticalDivider(
-            modifier = Modifier
-                .height(80.dp)
-                .padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
-
-        // QR Code placeholder bên phải
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.QrCode2,
-                    contentDescription = "QR Code",
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Scan to enter",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    // TODO: Implement TicketBottomSection
+    // - Row với fillMaxWidth + padding(20.dp), verticalAlignment = CenterVertically
+    // - Bên trái (weight(1f)): Column với "ADMIT ONE" text (labelSmall, Bold, letterSpacing 2sp)
+    //   + Text seatInfo (titleMedium, Bold) + Text section (bodySmall, onSurfaceVariant)
+    // - VerticalDivider với height(80.dp) + padding(horizontal=16.dp)
+    //   GỢI Ý: Tại sao dùng VerticalDivider thay vì Box(width=1.dp)?
+    //   → VerticalDivider tự fill height parent, không cần set height thủ công
+    // - Bên phải (weight(1f)): Column + Box QR placeholder (80x80, Icon QrCode2) + Text "Scan to enter"
+    Box {}
 }
 
 // ─── Preview ─────────────────────────────────────────────────────────────────
@@ -421,9 +243,8 @@ private fun TicketCardDarkPreview() {
  *
  * Q3: VerticalDivider vs Modifier.width(1.dp).background()
  *     → VerticalDivider semantic rõ hơn, height tự fill parent
- *     → Modifier.background thì phải set height thủ công
  *
  * Q4: Modifier.offset() trong notch — tại sao không dùng padding âm?
- *     → padding âm không exist trong Compose. offset() để dịch chuyển visual
+ *     → padding âm không exist trong Compose. offset() di chuyển visual
  *       mà không ảnh hưởng layout của siblings.
  */

@@ -54,53 +54,18 @@ fun SocialPostCard(
     commentCount: Int = 0,
     retweetCount: Int = 0,
     modifier: Modifier = Modifier,
-    // TODO: [Nâng cao] Khai báo nullable slot cho attachment
-    // Gợi ý: attachment: (@Composable () -> Unit)? = null
+    // Nullable slot cho attachment — chỉ render nếu != null
     attachment: (@Composable () -> Unit)? = null
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-
-            // 1. Header: Avatar + Username + Time
-            PostHeader(username = username, timeAgo = timeAgo)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 2. Content text — giới hạn 3 dòng
-            // TODO: [Nâng cao] Thêm maxLines và overflow
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            // 3. Attachment slot — chỉ render khi có
-            // TODO: [Nâng cao] Kiểm tra attachment != null trước khi render
-            // Gợi ý: if (attachment != null) { Spacer + attachment() }
-            attachment?.let {
-                Spacer(modifier = Modifier.height(8.dp))
-                it()
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 4. Action bar
-            PostActionBar(
-                likeCount = likeCount,
-                commentCount = commentCount,
-                retweetCount = retweetCount
-            )
-        }
-    }
+    // TODO: Implement SocialPostCard layout
+    // - Card với RoundedCornerShape(12.dp) và elevation
+    // - Column bên trong với padding(12.dp)
+    // - Gọi PostHeader(username, timeAgo)
+    // - Spacer rồi Text content với maxLines=3, overflow=Ellipsis
+    // - Kiểm tra attachment != null → Spacer + gọi attachment()
+    // - Spacer + HorizontalDivider
+    // - Gọi PostActionBar(likeCount, commentCount, retweetCount)
+    Box {}
 }
 
 // ─── Sub-components (cần tự implement) ───────────────────────────────────────
@@ -111,29 +76,12 @@ fun PostHeader(
     timeAgo: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // TODO: Avatar circle với màu từ username
-        // Gợi ý: dùng MaterialTheme.colorScheme.primary hoặc tính màu từ username.hashCode()
-        UserAvatar(username = username)
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = username,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = timeAgo,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    // TODO: Implement PostHeader
+    // - Row với fillMaxWidth, verticalAlignment = CenterVertically
+    // - Gọi UserAvatar(username)
+    // - Spacer(width = 10.dp)
+    // - Column (weight(1f)): Text username (Bold) + Text timeAgo (secondary color)
+    Box {}
 }
 
 @Composable
@@ -141,32 +89,12 @@ fun UserAvatar(
     username: String,
     modifier: Modifier = Modifier
 ) {
-    // TODO: [Nâng cao] Tính màu từ username.hashCode() thay vì hardcode
-    // Gợi ý:
-    // val avatarColors = listOf(Color(0xFF1DA1F2), Color(0xFFE0245E), ...)
-    // val color = avatarColors[abs(username.hashCode()) % avatarColors.size]
-
-    val avatarColors = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary
-    )
-    val color = avatarColors[Math.abs(username.hashCode()) % avatarColors.size]
-
-    Box(
-        modifier = modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(color),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = username.first().uppercaseChar().toString(),
-            color = Color.White,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    // TODO: Implement UserAvatar
+    // - Tính màu từ username.hashCode() (dùng avatarColors list + abs() % size)
+    // - Box size(40.dp) + clip(CircleShape) + background(color)
+    // - Text hiển thị chữ cái đầu của username (uppercaseChar)
+    // GỢI Ý: val color = avatarColors[Math.abs(username.hashCode()) % avatarColors.size]
+    Box {}
 }
 
 @Composable
@@ -176,34 +104,11 @@ fun PostActionBar(
     retweetCount: Int,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        // TODO: [Nâng cao] Tạo ActionItem composable reusable thay vì lặp code
-        // Gợi ý: ActionItem(icon, count, onClick, modifier)
-
-        ActionItem(
-            icon = Icons.Outlined.FavoriteBorder,
-            count = likeCount,
-            contentDescription = "Like"
-        )
-        ActionItem(
-            icon = Icons.Outlined.ChatBubbleOutline,
-            count = commentCount,
-            contentDescription = "Comment"
-        )
-        ActionItem(
-            icon = Icons.Outlined.Repeat,
-            count = retweetCount,
-            contentDescription = "Retweet"
-        )
-        ActionItem(
-            icon = Icons.Outlined.Share,
-            count = null,
-            contentDescription = "Share"
-        )
-    }
+    // TODO: Implement PostActionBar
+    // - Row với fillMaxWidth, Arrangement.SpaceBetween
+    // - 4 ActionItem: Like (FavoriteBorder), Comment (ChatBubbleOutline), Retweet (Repeat), Share (Share)
+    // - Share không hiện count (truyền count = null)
+    Box {}
 }
 
 @Composable
@@ -213,25 +118,11 @@ fun ActionItem(
     contentDescription: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            modifier = Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        if (count != null && count > 0) {
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    // TODO: Implement ActionItem (reusable)
+    // - Row với verticalAlignment = CenterVertically, spacedBy(4.dp)
+    // - Icon size(18.dp) với tint = onSurfaceVariant
+    // - Nếu count != null && count > 0: hiển thị Text count
+    Box {}
 }
 
 // ─── Preview ─────────────────────────────────────────────────────────────────
@@ -267,7 +158,6 @@ private fun SocialPostWithImagePreview() {
             likeCount = 15,
             commentCount = 3,
             retweetCount = 2,
-            // TODO: [Nâng cao] Thêm Image thật từ painterResource hoặc AsyncImage
             attachment = {
                 Box(
                     modifier = Modifier

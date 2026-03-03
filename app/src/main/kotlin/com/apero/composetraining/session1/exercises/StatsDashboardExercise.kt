@@ -62,40 +62,15 @@ fun StatCard(
     // Slot API cho trend indicator — caller quyết định UI
     trend: @Composable () -> Unit = {}
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()    // fillMaxHeight() phối hợp với IntrinsicSize.Max
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Header: emoji + label
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = emoji, fontSize = 20.sp)
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // Value — số to
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            // Trend slot
-            trend()
-        }
-    }
+    // TODO: Implement StatCard layout
+    // - Card với RoundedCornerShape(12.dp) và elevation
+    // - Column bên trong với fillMaxHeight() + padding(16.dp)
+    // - verticalArrangement = SpaceBetween
+    // - Row header: emoji text + label text (onSurfaceVariant)
+    // - Text value lớn (headlineMedium, Bold)
+    // - Gọi trend() slot ở dưới
+    // GỢI Ý: fillMaxHeight() phối hợp với IntrinsicSize.Max ở Row cha
+    Box {}
 }
 
 /**
@@ -118,40 +93,14 @@ fun TrendIndicator(
     isPositive: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val color = if (isPositive) {
-        MaterialTheme.colorScheme.tertiary
-    } else {
-        MaterialTheme.colorScheme.error
-    }
-
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        // TODO: [Nâng cao] Thay Modifier.rotate bằng graphicsLayer để skip Layout phase
-        // Đây là ví dụ thực tế của Slide 11 — Smart Optimization
-        Icon(
-            imageVector = if (isPositive) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
-            contentDescription = if (isPositive) "Tăng" else "Giảm",
-            tint = color,
-            modifier = Modifier
-                .size(16.dp)
-                // ✅ graphicsLayer: chỉ Drawing phase — không trigger Layout
-                .graphicsLayer {
-                    // Không cần rotate icon vì dùng TrendingUp/TrendingDown riêng
-                    // Nhưng nếu chỉ dùng 1 icon, rotate ở đây:
-                    // rotationZ = if (isPositive) 0f else 180f
-                }
-        )
-
-        Text(
-            text = percentage,
-            style = MaterialTheme.typography.bodySmall,
-            color = color,
-            fontWeight = FontWeight.Medium
-        )
-    }
+    // TODO: Implement TrendIndicator
+    // - Xác định color: tertiary nếu isPositive, error nếu ngược lại
+    // - Row với verticalAlignment = CenterVertically, spacedBy(4.dp)
+    // - Icon TrendingUp/TrendingDown size(16.dp) với tint = color
+    // - GỢI Ý: Thay vì Modifier.rotate(), dùng Modifier.graphicsLayer { rotationZ = ... }
+    //   → graphicsLayer chỉ trigger Drawing phase, tiết kiệm hơn cho animation
+    // - Text percentage với color và fontWeight Medium
+    Box {}
 }
 
 /**
@@ -174,120 +123,19 @@ fun StatsDashboard(
     stats: List<StatData>,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "📊 Dashboard",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Today",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Row 1 — 2 stat cards EQUAL HEIGHT
-            // TODO: [Nâng cao] Thêm Modifier.height(IntrinsicSize.Max) vào Row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max), // ← EQUAL HEIGHT magic
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (stats.isNotEmpty()) {
-                    StatCard(
-                        label = stats[0].label,
-                        value = stats[0].value,
-                        emoji = stats[0].emoji,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(), // ← fillMaxHeight() phối hợp với IntrinsicSize
-                        trend = {
-                            TrendIndicator(
-                                percentage = stats[0].percentage,
-                                isPositive = stats[0].isPositive
-                            )
-                        }
-                    )
-                }
-                if (stats.size > 1) {
-                    StatCard(
-                        label = stats[1].label,
-                        value = stats[1].value,
-                        emoji = stats[1].emoji,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        trend = {
-                            TrendIndicator(
-                                percentage = stats[1].percentage,
-                                isPositive = stats[1].isPositive
-                            )
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Row 2 — 2 stat cards EQUAL HEIGHT
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (stats.size > 2) {
-                    StatCard(
-                        label = stats[2].label,
-                        value = stats[2].value,
-                        emoji = stats[2].emoji,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        trend = {
-                            TrendIndicator(
-                                percentage = stats[2].percentage,
-                                isPositive = stats[2].isPositive
-                            )
-                        }
-                    )
-                }
-                if (stats.size > 3) {
-                    StatCard(
-                        label = stats[3].label,
-                        value = stats[3].value,
-                        emoji = stats[3].emoji,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        trend = {
-                            TrendIndicator(
-                                percentage = stats[3].percentage,
-                                isPositive = stats[3].isPositive
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
+    // TODO: Implement StatsDashboard 2x2 grid
+    // - Card ngoài với fillMaxWidth + padding(16.dp), elevation
+    // - Column bên trong với padding(16.dp)
+    // - Header Row: "📊 Dashboard" text (titleLarge, Bold) + "Today" text (bodySmall)
+    // - Spacer(16.dp)
+    // - Row 1 (stats[0] và stats[1]):
+    //   → PHẢI dùng Modifier.height(IntrinsicSize.Max) trên Row
+    //   → Mỗi StatCard: Modifier.weight(1f).fillMaxHeight()
+    //   → Truyền TrendIndicator vào slot trend
+    // - Spacer(12.dp) rồi Row 2 tương tự với stats[2] và stats[3]
+    // GỢI Ý: Tại sao cần IntrinsicSize.Max?
+    // → Compose đo "intrinsic height" của mỗi child, lấy max, constraint tất cả về height đó
+    Box {}
 }
 
 // ─── Sample Data ──────────────────────────────────────────────────────────────
@@ -341,17 +189,7 @@ private fun DashboardDarkPreview() {
  * Sau khi hoàn thành, thảo luận với nhóm:
  *
  * Q1: Tại sao IntrinsicSize.Max lại work? Compose tính height như thế nào?
- *     → Compose đo "intrinsic height" (chiều cao tự nhiên) của mỗi child,
- *       lấy max, rồi constrain tất cả về cùng height đó.
- *
  * Q2: Nếu không dùng IntrinsicSize.Max thì UI trông thế nào?
- *     → Mỗi card height = content của nó → 2 card không cùng height → xấu.
- *
  * Q3: graphicsLayer vs Modifier.rotate() — khi nào dùng cái nào?
- *     → Animation → graphicsLayer (skip Layout phase, GPU layer riêng)
- *     → Static rotation → cả 2 đều ok, graphicsLayer không có overhead lớn hơn
- *
  * Q4: Slot API ở StatCard có lợi gì so với truyền thẳng TrendIndicator?
- *     → Caller có thể thay bằng Chart, Badge, hay bất kỳ UI nào
- *     → StatCard không coupled với TrendIndicator
  */
