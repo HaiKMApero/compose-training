@@ -70,10 +70,10 @@ private data class SessionInfo(
 )
 
 @Composable
-fun MainNavigation() {
+fun MainNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = SessionList) {
+    NavHost(navController = navController, startDestination = SessionList, modifier = modifier) {
         composable<SessionList> {
             SessionListScreen(onSessionClick = { number ->
                 navController.navigate(SessionDetail(number))
@@ -91,8 +91,8 @@ fun MainNavigation() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionListScreen(onSessionClick: (Int) -> Unit = {}) {
-    var enableDialog = remember { mutableStateOf(false) }
+fun SessionListScreen(modifier: Modifier = Modifier, onSessionClick: (Int) -> Unit = {}) {
+    val enableDialog = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,7 +109,8 @@ fun SessionListScreen(onSessionClick: (Int) -> Unit = {}) {
                     containerColor = androidx.compose.ui.graphics.Color.Transparent
                 )
             )
-        }
+        },
+        modifier = modifier
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -128,7 +129,7 @@ fun SessionListScreen(onSessionClick: (Int) -> Unit = {}) {
     }
     if (enableDialog.value) {
         Dialog(
-            onDismissRequest = { enableDialog.value = false},
+            onDismissRequest = { enableDialog.value = false },
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -192,7 +193,11 @@ private fun SessionCard(session: SessionInfo, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionDetailScreen(sessionNumber: Int, onBack: () -> Unit = {}) {
+fun SessionDetailScreen(
+    sessionNumber: Int,
+    modifier: Modifier = Modifier,
+    onBack: () -> Unit = {}
+) {
     val session = sessions.find { it.number == sessionNumber } ?: return
 
     Scaffold(
@@ -210,7 +215,8 @@ fun SessionDetailScreen(sessionNumber: Int, onBack: () -> Unit = {}) {
                     }
                 }
             )
-        }
+        },
+        modifier = modifier
     ) { padding ->
         LazyColumn(
             modifier = Modifier

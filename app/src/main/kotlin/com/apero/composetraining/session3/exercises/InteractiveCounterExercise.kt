@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.apero.composetraining.common.AppTheme
 
 /**
@@ -14,14 +15,33 @@ import com.apero.composetraining.common.AppTheme
  *
  * Yêu cầu:
  * - Text hiển thị count (fontSize 48sp)
- * - Row: Button "-" | Button "+" | Button "Reset"
- * - Count không được < 0
- * - Dùng remember + mutableStateOf
- * - Rotate thiết bị → count vẫn giữ (rememberSaveable)
+ * - Row: Button "−" (disabled khi count = 0) | Button "+" | Button "Reset"
+ * - rememberSaveable: xoay màn hình count vẫn giữ
+ * - State Hoisting: tách thành Counter (stateless) + CounterScreen (stateful)
+ *
+ * Tiêu chí:
+ * - Compile pass
+ * - Xoay màn hình → state giữ nguyên
+ * - Counter composable chỉ nhận count + callbacks (không có state bên trong)
+ *
+ * Gợi ý:
+ * - fun Counter(count: Int, onIncrement: () -> Unit, onDecrement: () -> Unit, onReset: () -> Unit)
+ * - fun CounterScreen() { var count by rememberSaveable { ... }; Counter(count, ...) }
  */
+
+// TODO: [Session 3] Bài tập 1 - Tạo Counter composable STATELESS
+// Params: count: Int, onIncrement: () -> Unit, onDecrement: () -> Unit, onReset: () -> Unit
+// Layout:
+//   - Text(count.toString(), fontSize = 48.sp) ở giữa
+//   - Row chứa 3 Button: "−" (enabled = count > 0), "+", "Reset"
+
+// TODO: [Session 3] Bài tập 1 - Tạo CounterScreen composable STATEFUL
+// - var count by rememberSaveable { mutableIntStateOf(0) }
+// - Gọi Counter(...) và truyền state + callbacks
 
 @Composable
 fun InteractiveCounterScreen() {
+    // TODO: Xóa placeholder này và gọi CounterScreen() đã implement ở trên
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,20 +50,14 @@ fun InteractiveCounterScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text("Interactive Counter", style = MaterialTheme.typography.headlineMedium)
-
         Spacer(modifier = Modifier.height(24.dp))
-
-        // TODO: [Session 3] Bài tập 1 - Tạo biến count dùng rememberSaveable
-        // var count by rememberSaveable { mutableIntStateOf(0) }
-
-        // TODO: [Session 3] Bài tập 1 - Hiển thị count với fontSize 48sp
-
+        Text("0", fontSize = 48.sp)
         Spacer(modifier = Modifier.height(16.dp))
-
-        // TODO: [Session 3] Bài tập 1 - Tạo Row chứa 3 buttons: "-", "+", "Reset"
-        // Button "-": giảm count (nhưng không < 0)
-        // Button "+": tăng count
-        // Button "Reset": đặt count = 0
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = {}, enabled = false) { Text("−") }
+            Button(onClick = {}) { Text("+") }
+            OutlinedButton(onClick = {}) { Text("Reset") }
+        }
     }
 }
 

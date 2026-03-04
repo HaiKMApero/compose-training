@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.apero.composetraining.common.AppTheme
 
 /**
- * ⭐⭐⭐⭐⭐ BÀI TẬP NÂNG CAO BUỔI 3: Multi-step Registration Form
+ * ⭐⭐⭐⭐ BÀI TẬP 4: Multi-step Registration Form (Advanced)
  *
  * Mô tả: Form đăng ký nhiều bước với complex state management, validation, UDF pattern
  *
@@ -35,6 +35,11 @@ import com.apero.composetraining.common.AppTheme
  * - UDF (Unidirectional Data Flow): State đi xuống, Events đi lên
  * - sealed class FormAction: type-safe events thay vì nhiều callbacks
  * - AnimatedContent: slide animation khi chuyển step
+ * - rememberSaveable + custom Saver: form state survive xoay màn hình
+ *
+ * Bonus (nếu xong sớm):
+ * - TODO: [Bonus] Implement custom Saver cho FormState (dùng mapSaver hoặc listSaver)
+ * - val formState = rememberSaveable(saver = FormStateSaver) { FormState() }
  */
 
 // ─── State & Actions (UDF pattern) ───────────────────────────────────────────
