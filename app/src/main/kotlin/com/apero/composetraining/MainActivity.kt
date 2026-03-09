@@ -59,9 +59,9 @@ private val sessions = listOf(
     SessionInfo(2, "Layouts", "LazyColumn, LazyRow, BoxWithConstraints, Custom Layout", "📐"),
     SessionInfo(3, "State & Recomposition", "remember, State hoisting, derivedStateOf, snapshotFlow", "🔄"),
     SessionInfo(4, "Lazy Layouts", "LazyColumn, LazyGrid, keys, animateItem", "⚡"),
-    SessionInfo(5, "Theming & Styling", "MaterialTheme, Custom colors, Dark mode, Typography", "🎨"),
-    SessionInfo(6, "Navigation", "NavHost, Navigation 3, Bottom nav, Deep links", "🧭"),
-    SessionInfo(7, "Animation & Testing", "animate*AsState, AnimatedVisibility, ComposeTestRule", "✨"),
+    SessionInfo(5, "Navigation", "Navigation 3, Type-safe Keys, Back stack, Per-tab stacks", "🧭"),
+    SessionInfo(6, "Theming & Styling", "MaterialTheme, Custom colors, Dark mode, Typography", "🎨"),
+    SessionInfo(7, "Architecture & Effects", "LaunchedEffect, DisposableEffect, ViewModel, UiState", "✨"),
 )
 
 @Composable
